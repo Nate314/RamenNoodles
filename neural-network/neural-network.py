@@ -4,8 +4,8 @@
 import tensorflow as tf;
 from tensorflow import keras;
 import numpy as np;
-import matplotlib.pyplot as plt;
-import functools;
+import math;
+import json;
 
 # type of input from ramen-ratings.json
 class RamenRecord:
@@ -38,10 +38,7 @@ class RamenInfo:
 # reads in data from json files and converts to vectors for training and testing input/output
 def load_data(train_data_percentage):
     def read_json(path):
-        data = None;
-        with open(path) as reader:
-            data = eval(reader.read().replace('null', 'None'));
-        return data;
+        with open(path) as reader: return json.load(reader);
     ramen_info: RamenInfo = RamenInfo(read_json('../ramen-info.json'));
     def map_json_to_input_vector(data: RamenRecord) -> [int]:
         result = [];
@@ -64,18 +61,17 @@ def load_data(train_data_percentage):
 
 # set up network
 input_vector_size = len(train_data[0]);
-model = keras.Sequential([
-    keras.layers.InputLayer(input_shape=(input_vector_size,)),
-    keras.layers.Dense(input_vector_size, activation="sigmoid"),
-    keras.layers.Dense(round(input_vector_size / 2), activation="sigmoid"),
-    keras.layers.Dense(round(input_vector_size / 4), activation="sigmoid"),
-    keras.layers.Dense(round(input_vector_size / 8), activation="sigmoid"),
-    keras.layers.Dense(6, activation="softmax")
-]);
-model.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"]);
+print('input_vector_size', input_vector_size);
+layers = [keras.layers.InputLayer(input_shape=(input_vector_size,))];
+for i in range(int(math.log(input_vector_size, 2) - 3)):
+    layers.append(keras.layers.Dense(round(input_vector_size / (2 ** (i + 1))), activation="tanh"));
+layers.append(keras.layers.Dense(6, activation="softmax"))
+model = keras.Sequential(layers);
+optimizer = keras.optimizers.Adam(learning_rate=0.001, beta_1=0.9, beta_2=0.999, amsgrad=False);
+model.compile(optimizer=optimizer, loss="sparse_categorical_crossentropy", metrics=['accuracy']);
 
 # train the network
-model.fit(train_data, train_labels, epochs=20);
+model.fit(train_data, train_labels, epochs=10);
 
 # test the network
 test_loss, test_acc = model.evaluate(test_data, test_labels);
@@ -83,28 +79,14 @@ print("Tested Acc:", test_acc);
 
 # calculate error
 prediction = model.predict(test_data);
-within_0 = 0;
-within_1 = 0;
-within_2 = 0;
-within_3 = 0;
-within_4 = 0;
-within_5 = 0;
+within_x = list(map(lambda x: 0, range(6)));
 for i in range(len(test_data)):
-    within_0 += 1 if abs(test_labels[i] - np.argmax(prediction[i])) <= 0 else 0;
-    within_1 += 1 if abs(test_labels[i] - np.argmax(prediction[i])) <= 1 else 0;
-    within_2 += 1 if abs(test_labels[i] - np.argmax(prediction[i])) <= 2 else 0;
-    within_3 += 1 if abs(test_labels[i] - np.argmax(prediction[i])) <= 3 else 0;
-    within_4 += 1 if abs(test_labels[i] - np.argmax(prediction[i])) <= 4 else 0;
-    within_5 += 1 if abs(test_labels[i] - np.argmax(prediction[i])) <= 5 else 0;
+    for x in range(6):
+        within_x[x] += 1 if abs(test_labels[i] - np.argmax(prediction[i])) <= x else 0;
 
 output = '';
 output += '--------------------------------' + '\n';
-output += f'within 0 stars = {within_0} / {len(test_data)} = {100 * within_0 / len(test_data)}%' + '\n';
-output += f'within 1 stars = {within_1} / {len(test_data)} = {100 * within_1 / len(test_data)}%' + '\n';
-output += f'within 2 stars = {within_2} / {len(test_data)} = {100 * within_2 / len(test_data)}%' + '\n';
-output += f'within 3 stars = {within_3} / {len(test_data)} = {100 * within_3 / len(test_data)}%' + '\n';
-output += f'within 4 stars = {within_4} / {len(test_data)} = {100 * within_4 / len(test_data)}%' + '\n';
-output += f'within 5 stars = {within_5} / {len(test_data)} = {100 * within_5 / len(test_data)}%' + '\n';
+output += '\n'.join([f'within {x} stars = {within_x[x]} / {len(test_data)} = {100 * within_x[x] / len(test_data)}%' for x in range(6)]) + '\n';
 output += '--------------------------------' + '\n';
 print(output);
 with open('../results.txt', 'w+') as writer:

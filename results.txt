@@ -1,8 +1,8 @@
 --------------------------------
-within 0 stars = 64 / 100 = 64.0%
-within 1 stars = 89 / 100 = 89.0%
-within 2 stars = 96 / 100 = 96.0%
-within 3 stars = 99 / 100 = 99.0%
+within 0 stars = 67 / 100 = 67.0%
+within 1 stars = 90 / 100 = 90.0%
+within 2 stars = 95 / 100 = 95.0%
+within 3 stars = 98 / 100 = 98.0%
 within 4 stars = 99 / 100 = 99.0%
 within 5 stars = 100 / 100 = 100.0%
 --------------------------------

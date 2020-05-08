@@ -1,5 +1,17 @@
 # RamenNoodles NeuralNetwork
 
+## Notes
+
+To run this project:
+
+- run `npm i` to install the necessary dependencies for the pre-processing project from the pre-processing folder, and make sure to have typescript installed.
+- make sure to have tensorflow installed with `pip` before running the `nerual-netowrk/neural-network.py` script.
+- you can run both projects by running the run.bat file.
+  - the run.bat file will run the pre-processing project, which will generate `ramen-info.json` and `ramen-ratings.json` from the `ramen-ratings.csv` file.
+  - then the run.bat file will run the `neural-network/neural-network.py` script and generate a `results.txt` file as output.
+
+## Assignment Description
+
 For this assignment, you'll be using some real-world data to predict product quality. The data will need some initial preparation before processing.
 
 Your data file is based on reviews from The Ramen Rater, a site for serious ramen fans. The data consists of 2580 product reviews. For each, you have:
