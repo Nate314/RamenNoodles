@@ -1,0 +1,7 @@
+services:
+  pipeline:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # Runs once and exits: no ports, no restart.
+    restart: "no"

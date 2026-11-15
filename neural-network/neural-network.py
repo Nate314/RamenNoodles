@@ -54,7 +54,8 @@ def load_data(train_data_percentage):
     test_labels = list(map(lambda x: round(x.Stars), test_data));
     train_data = list(map(lambda x: map_json_to_input_vector(x), train_data));
     test_data = list(map(lambda x: map_json_to_input_vector(x), test_data));
-    return (train_data, train_labels), (test_data, test_labels);
+    # Keras 3 rejects plain Python lists, so hand it numpy arrays.
+    return (np.array(train_data), np.array(train_labels)), (np.array(test_data), np.array(test_labels));
 
 # read in training and testing data                  # save 100 inputs for testing
 (train_data, train_labels), (test_data, test_labels) = load_data(100 / 2580);
